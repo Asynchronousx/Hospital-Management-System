@@ -1,0 +1,78 @@
+#!/bin/bash
+#Script to generate a department. 
+#Usage: ./generate_department.sh <DEPNAME> <PORT> <IP> <ROOT PSW> <DB USERNAME> <DB USER PSW>
+
+#SCRIPT START
+if [ $# -ne 6 ] 
+then 
+  echo "Usage: ./generate_department.sh <DEPNAME> <PORT> <IP> <ROOT PSW> <DB USERNAME> <DB USER PSW>"
+  exit 1
+fi
+
+#ASSURE department_template.c exists
+if [  ! -f "./Template/department_template.c" ] 
+then
+  echo "File department template not found, exiting.."
+  exit 1
+fi
+
+#FETCHING INFO
+NAME=${1^^}
+PORT=$2
+IP=$3
+ROOTPSW=$4
+DBUSER=$5
+DBUSERPSW=$6
+
+#CHECK IF DIR EXISTS
+#IF FOLDER EXIST DELETE
+if [ -d "$NAME" ]
+ then
+  rm -f -R $NAME
+fi
+
+#SETTING AND DROPPING PRE EXISTENT USER/DB
+sudo mysql -u "root" -p$ROOTPSW  << EOF
+DROP DATABASE $1;
+DROP USER $DBUSER;
+EOF
+
+#CREATING DATABASE & USER AND GRANTING PERMISSION
+sudo mysql -u "root" -p$ROOTPSW  << EOF
+CREATE DATABASE $1;
+USE $1;
+CREATE TABLE VISIT (PREN_CODE TEXT, RECEPT_CODE TEXT, P_FNAME TEXT, P_LNAME TEXT, P_DAY TEXT, P_DATE DATE, P_TIME TIME, PRIMARY KEY(P_DATE, P_TIME));
+GRANT ALL PRIVILEGES ON $1.* TO '$DBUSER'@'localhost' IDENTIFIED BY '$DBUSERPSW';
+EOF
+
+#CREATE DIR
+mkdir $NAME
+
+#CREATE FILE AND SUBDIR
+cp "./Template/department_template.c" ./$NAME/
+cp "./Template/Department_header.h" ./$NAME/
+cp "./Template/Department_function.c" ./$NAME/
+cp "./Template/secure_networking.h" ./$NAME/
+cp "./Template/secure_networking_functions.c" ./$NAME
+cp "./Template/makefile_template" ./$NAME/
+mkdir ./$NAME/"ConfigFile"
+mkdir ./$NAME/"ConfigVisit"
+> "./$NAME/ConfigFile/server_config.txt"
+> "./$NAME/ConfigVisit/visit_config.txt"
+
+#RENAMING AND UPDATING FILE
+mv ./$NAME/"department_template.c" "./$NAME/$1.c"
+mv ./$NAME/"makefile_template" "./$NAME/makefile"
+cat "./Template/template_visit_config.txt" > "./$NAME/ConfigVisit/visit_config.txt"
+sed -i "s/INSERT_NAME_HERE/$1/g" "./$NAME/$1.c"
+sed -i "s/INSERT_NAME_HERE/$1/g" "./$NAME/makefile"
+echo "$PORT:$IP" > "./$NAME/ConfigFile/server_config.txt"
+
+#GIVING TO THE GENERATED FILE DATABASE CREDENTIAL ACCESS
+sed -i "s/INSERT_USERNAME_HERE/$5/g" "./$NAME/$1.c"
+sed -i "s/INSERT_PASSWORD_HERE/$6/g" "./$NAME/$1.c"
+
+#COMPILE ALL
+make -C ./$NAME/
+
+#DONE

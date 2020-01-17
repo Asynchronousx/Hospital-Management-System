@@ -1,0 +1,29 @@
+------------------
+-  INSTRUCTIONS  -
+------------------
+
+*** 1. DEPARTMENT CREATION ***
+To generate a department, just run into the terminal
+the generate department script with name, port and ip 
+information, along with the database one:
+
+template: ./generate_department.sh <Dep Name> <Port> <Ip> <Root PSW> <User DB> <Pass User DB>
+
+example of use: ./generate_department.sh Pediatry 7777 127.0.0.1 rootPsw* UserName userPsw*
+
+this will create a folder containing all the necessary file
+to initialize a department, already compiled and ready to run, 
+and also the database the file will use to store it's visits.
+
+*** 2. RUN DEPARTMENT ***
+Last phase, is to send the department ONLINE.
+we could do this simply opening a terminal into our desired folder
+and type:
+
+./<Department Name>
+
+Once done, our department will be online.
+
+---------------------
+- Enjoy the System! -
+---------------------

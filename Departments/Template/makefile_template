@@ -1,0 +1,14 @@
+#MAKEFILE FOR USERCLIENT
+
+PROGNAME = INSERT_NAME_HERE
+OBJECTS  = $(PROGNAME).o secure_networking_functions.o Department_function.o
+CFLAGS = -g -std=c99  `mysql_config --cflags --libs`
+LIBS = -lpthread
+
+$(PROGNAME): $(OBJECTS)
+	gcc -o $(PROGNAME) $(OBJECTS) $(CFLAGS) $(LIBS)
+	rm -f $(OBJECTS)
+
+# Clean Rule
+clean: 
+	rm -f $(OBJECTS) $(PROGNAME)

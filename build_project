@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#GIVE USER PERMISSION
+chmod -R u+x *
+echo "Gave Permissions."
+
+#MAKE CLEAN PROJECT 
+make clean -C ./CUP/
+make -C ./CUP/
+make clean -C ./Doctors/
+make -C ./Doctors/
+make clean -C ./Users/
+make -C ./Users/
+echo "Project cleaned and Builded."
+
